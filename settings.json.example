@@ -1,0 +1,7 @@
+{
+  "instagram_id": "",
+  "connection.accounts": [
+    "login:password",
+    "login2:password2"
+  ]
+}

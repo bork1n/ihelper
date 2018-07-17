@@ -1,0 +1,5 @@
+sessions/*
+jsons/profiles/*
+jsons/followers/*
+__pycache__
+settings.json
