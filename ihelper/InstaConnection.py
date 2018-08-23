@@ -30,23 +30,60 @@ DEFAULT_HEADERS = {
 class InstaConnection:
     url = 'https://www.instagram.com/'
     url_login = 'https://www.instagram.com/accounts/login/ajax/'
-    accept_language = 'en-US,en;q=0.5'
-    login_status = False
-    user_login = None
-    user_password = None
+    BANTIME = 1800
 
-    def __init__(self, accounts):
-        self.user_login = accounts[0]['login']
-        self.user_password = accounts[0]['password']
+    def __init__(self, accounts, logger, sessions_dir=SESSIONS_DIR):
+        self.accounts = accounts
+        self.logger = logger
+        self.sessions_dir = sessions_dir
+        self._load_bans()
+        self._change_account()
+
+    def _load_bans(self):
+        loaded_bans = {}
+        try:
+            with open(self._banned_file(), 'rb') as f:
+                loaded_bans = pickle.load(f)
+                self.logger.info("loaded bans: %s", {
+                                 x: loaded_bans[x] for x in loaded_bans if loaded_bans[x]})
+        except FileNotFoundError:
+            pass
+
+        self.banned = {x['login']: loaded_bans.get(
+            x['login'], 0) for x in self.accounts}
+
+    def _save_bans(self):
+        with open(self._banned_file(), 'wb') as f:
+            loaded_bans = pickle.dump(self.banned, f)
+
+    def _change_account(self):
+        avail_accounts = None
+        while not avail_accounts:
+            if avail_accounts == None:
+                pass
+            else:
+                self.logger.error("no accounts alive, sleeping")
+                time.sleep(60)
+            avail_accounts = list(filter(
+                lambda acc: self.banned.get(acc['login'], 0) < time.time() - self.BANTIME, self.accounts))
+
+        self.account = random.choice(avail_accounts)
+        self.logger.info("Changing account to %s, all avail: %s",
+                         self.account['login'],
+                         " ".join(map(lambda a: a['login'], avail_accounts)))
+        self.login_status = False
         self.s = requests.Session()
         self.do_login()
 
     def _session_file(self):
-        return "{}/{}".format(SESSIONS_DIR, self.user_login)
+        return "{}/{}".format(self.sessions_dir, self.account['login'])
+
+    def _banned_file(self):
+        return "{}/{}".format(self.sessions_dir, 'banned')
 
     def check_login(self):
         r = self.s.get(self.url)
-        finder = r.text.find(self.user_login)
+        finder = r.text.find(self.account['login'])
         if finder != -1:
             self.login_status = True
         else:
@@ -64,8 +101,8 @@ class InstaConnection:
             return
         self.logger.info("Logging in")
         self.login_post = {
-            'username': self.user_login,
-            'password': self.user_password
+            'username': self.account['login'],
+            'password': self.account['password']
         }
         self._generate_ua()
         self.s.headers.update(DEFAULT_HEADERS)
@@ -95,6 +132,13 @@ class InstaConnection:
             os.remove(self._session_file())
             self.do_login()
             data = self.s.get(url)
+        """ rate limit """
+        if data.status_code == 429:
+            self.banned[self.account['login']] = int(time.time())
+            self._save_bans()
+            self._change_account()
+            data = self.s.get(url)
+
         return data
 
     def post(self, url):
@@ -120,4 +164,5 @@ class InstaConnection:
                 self.logger.info("Using existing cookies")
 
         except FileNotFoundError:
+            self.login_status = False
             pass
