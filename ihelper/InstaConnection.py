@@ -51,7 +51,8 @@ class InstaConnection:
             self.login_status = True
         else:
             self.login_status = False
-            self.write_log('Login error! Check your login data!')
+            self.logger.error(r.text)
+            self.logger.error('Login error! Check your login data!')
 
     def _generate_ua(self):
         fake_ua = UserAgent()
@@ -61,7 +62,7 @@ class InstaConnection:
         self.load_session()
         if self.login_status:
             return
-        self.write_log("Logging in")
+        self.logger.info("Logging in")
         self.login_post = {
             'username': self.user_login,
             'password': self.user_password
@@ -85,7 +86,7 @@ class InstaConnection:
                 self.save_session()
 
         if not self.login_status:
-            self.write_log('Login error! Connection error!')
+            self.logger.error('Login error! Connection error!')
 
     def get(self, url):
         data = self.s.get(url)
@@ -116,7 +117,7 @@ class InstaConnection:
                 self.s.cookies = cookies
                 self.s.headers = data[1]
                 self.login_status = True
-                self.write_log("Using existing cookies")
+                self.logger.info("Using existing cookies")
 
         except FileNotFoundError:
             pass
