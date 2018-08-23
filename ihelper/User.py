@@ -6,14 +6,11 @@ PER_ROUND = 50
 
 
 class User:
-    id = None
-    fetcher = None
-    storage = None
-
-    def __init__(self, id, fetcher, storage):
+    def __init__(self, id, fetcher, storage, logger):
         self.id = id
         self.fetcher = fetcher
         self.storage = storage
+        self.logger = logger
 
     def calc_diff(self, old, followers):
         r = {}
@@ -46,7 +43,7 @@ class User:
             old = {}
         return old
 
-    def update_followers(self, progress_fn):
+    def update_followers(self):
         fetch = True
         num = 30
         followers = {}
@@ -63,7 +60,7 @@ class User:
                     user_data = user['node']
                     followers[user_data['id']] = user_data
                     got += 1
-                progress_fn("got {} of {}".format(got, total))
+                self.logger.info("got %4d of %4d", got, total)
                 after = edges['page_info']['end_cursor']
                 if not edges['page_info']['has_next_page']:
                     break
