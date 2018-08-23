@@ -1,20 +1,17 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import sys
 import json
 from ihelper.InstaConnection import InstaConnection
 from ihelper.Fetcher import Fetcher
-from ihelper.Storage import Storage
 from ihelper.User import User
+import ihelper.Storage
 CONFIG_FILE = "settings.json"
 
 
 with open(CONFIG_FILE) as f:
     config = json.load(f)
 
-INSTA_ID = config['instagram_id']
-
-storage = Storage()
+storage = ihelper.Storage.Storage(backend=ihelper.Storage.FileBackend())
 conn = InstaConnection(
     accounts=config["connection.accounts"]
 )
@@ -42,7 +39,7 @@ for i in 'added', 'removed':
         # if details['edge_follow']['count'] < 2000:
         #     continue
         print(
-            "https://instagram.com/{}\t\"{}\t\"\t{} clients vs {} subs "
+            "https://instagram.com/{}\t\"{}\"\t{} clients vs {} subs "
             .format(details['username'],
                     details['full_name'],
                     details['edge_followed_by']['count'],
