@@ -17,7 +17,7 @@ class Fetcher:
 
     def pause_between(self, name):
         if name == 'graphql':
-            time.sleep(5 + random.randint(7, 12))
+            time.sleep(5 + random.randint(2, 7))
         else:
             time.sleep(1 + random.randint(0, 2))
 
