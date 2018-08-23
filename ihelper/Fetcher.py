@@ -10,10 +10,9 @@ URL_PROFILE = "https://www.instagram.com/{}/?__a=1"
 
 
 class Fetcher:
-    conn = None
-
-    def __init__(self, conn):
+    def __init__(self, conn, logger):
         self.conn = conn
+        self.logger = logger
 
     def pause_between(self, name):
         if name == 'graphql':
@@ -29,11 +28,11 @@ class Fetcher:
         elif data.status_code in [500, 502, 503]:
             raise Exception('Insta is dead')
         elif data.status_code in [400, 429]:
-            print('Rate limited, sleeing 600')
+            self.logger.info('Rate limited, sleeing 600')
             time.sleep(600)
             return None
         else:
-            print(data.__dict__)
+            self.logger.info(data.__dict__)
         return None
 
     def graphql(self, query_hash, vars):
