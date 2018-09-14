@@ -38,6 +38,8 @@ while True:
     msg = None
     try:
         msg = sqs.recieve()
+    except KeyboardInterrupt:
+        sys.exit()
     except:
         pass
 
