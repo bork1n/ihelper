@@ -29,9 +29,9 @@ class Storage:
     def _filename(self, key, ts):
         return "{}-{}.json.gz".format(key, ts)
 
-    def load_data(self, key):
+    def load_data(self, key, ts=None):
         try:
-            data = self.backend.load(key)
+            data = self.backend.load(key, ts)
         except FileNotFoundError:
             return None
 
@@ -70,12 +70,16 @@ class DynamoDBBackend(BackendAbstract):
         self.s3 = session.resource('s3').Bucket(bucket)
         self.db_max_size = db_max_size
 
-    def load(self, key):
-        response = self.table.query(
-            KeyConditionExpression=Key('key').eq(key),
-            Limit=1,
-            ScanIndexForward=False
-        )
+    def load(self, key, ts=None):
+        args = {
+            "KeyConditionExpression": Key('key').eq(key),
+            "Limit": 1,
+            "ScanIndexForward": False
+        }
+        if ts:
+            args['KeyConditionExpression'] = args['KeyConditionExpression'] & Key(
+                'ts').eq(ts)
+        response = self.table.query(**args)
         items = response['Items']
 
         if not items:
