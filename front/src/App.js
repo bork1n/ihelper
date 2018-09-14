@@ -12,7 +12,7 @@ AWS.config.credentials = new AWS.CognitoIdentityCredentials({
 var docClient = new AWS.DynamoDB.DocumentClient();
 var s3 = new AWS.S3();
 
-const s3bucket ='s3helper';
+const s3bucket ='ihelper';
 const ddbtable = 'ihelper';
 
 
