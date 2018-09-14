@@ -37,8 +37,8 @@ class User:
             self.storage.save_data('profiles/' + str(item['id']), details)
         return details
 
-    def get_followers(self):
-        old = self.storage.load_data('followers/' + str(self.id))
+    def get_followers(self, ts=None):
+        old = self.storage.load_data('followers/' + str(self.id), ts=None)
         if not old:
             old = {}
         return old
