@@ -8,4 +8,4 @@ class SQSClient:
             'sqs').get_queue_by_name(QueueName=queue)
 
     def recieve(self):
-        return self.queue.receive_messages(MaxNumberOfMessages=1)
+        return self.queue.receive_messages(MaxNumberOfMessages=1, WaitTimeSeconds=20)

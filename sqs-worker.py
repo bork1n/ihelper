@@ -40,10 +40,11 @@ while True:
         msg = sqs.recieve()
     except:
         pass
-    start_time = time.time()
+
     if not msg:
-        time.sleep(10)
         continue
+
+    start_time = time.time()
 
     try:
         payload = json.loads(msg[0].body)
