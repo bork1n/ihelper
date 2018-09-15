@@ -37,25 +37,17 @@ function fetchData(key, ts, limit, cb) {
     params['ExpressionAttributeValues'][':ts'] = ts;
   }
   // console.log(params);
+  var res = [];
   docClient.query(params, function(err, data) {
     if (err) {
       console.error("Unable to query. Error:", JSON.stringify(err, null, 2));
     } else {
-      // console.log(key, data.Items);
-      var process_fn = (str) => {
-        // console.log(str);
-        var obj = JSON.parse(str);
-        //console.log(ts,obj);
-        if (cb) {
-          // console.log('calling cb');
-          cb(obj);
-        }
-      }
-
       data.Items.forEach(function(item) {
+        var promise = new Promise(function(resolve, reject) {
 
         if (typeof(item.val.startsWith) == 'function' && item.val.startsWith(key)) {
           console.log('s3!');
+          var res_value = 0;
           s3.getObject({
             Bucket: s3bucket,
             Key: item.val
@@ -63,14 +55,23 @@ function fetchData(key, ts, limit, cb) {
             if (error != null) {
               console.log(error);
             } else {
-              process_fn(data.Body.toString());
+              res_value = JSON.parse(data.Body.toString());
+              resolve({
+                ts: item.ts,
+                val: res_value
+              });
             }
           })
         } else {
           zlib.unzip(item.val, (err, buffer) => {
             if (!err) {
               var str = buffer.toString();
-              process_fn(str);
+              // process_fn(str, item.ts);
+              res_value = JSON.parse(str);
+              resolve({
+                ts: item.ts,
+                val: res_value
+              });
             } else {
               console.log(err);
               // handle error
@@ -79,12 +80,26 @@ function fetchData(key, ts, limit, cb) {
           //console.log(item.ts);
         }
       });
-      if (data.Items.length == 0 && cb) {
-        console.log('calling cb after 404 for ', key);
-        cb(0);
-      }
+        res.push(promise)
+      });
+
     }
+  if(limit == 1){
+    if(res[0]) {
+    res[0].then((value)=> {
+          cb(value.val);
+    });
+  } else {
+    console.log('calling cb after 404 for ', key);
+    cb({});
+  }
+  } else {
+    Promise.all(res).then((values)=>{
+    cb(values);
   });
+  }
+});
+
 }
 
 function promise_fetch(key, ts) {
