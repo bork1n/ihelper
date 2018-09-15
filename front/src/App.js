@@ -66,7 +66,6 @@ function fetchData(key, ts, limit, cb) {
           zlib.unzip(item.val, (err, buffer) => {
             if (!err) {
               var str = buffer.toString();
-              // process_fn(str, item.ts);
               res_value = JSON.parse(str);
               resolve({
                 ts: item.ts,
