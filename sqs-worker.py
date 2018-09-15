@@ -39,7 +39,8 @@ def update_followers(payload):
             "payload": {
                 "user_id": payload['user_id'],
                 "from": prev_ts,
-                "to": int(start_time)
+                "to": int(start_time),
+                "ignore_details": True if ignore_unfollow else False
             }
         }
         sqs.send(process_request)
@@ -68,9 +69,9 @@ def process_diff(payload):
 
             storage.save_data(
                 key='follows/' + item['id'], value=follow_update, ts=payload['to'])
-
-            details = User(id=item['id'], fetcher=fetcher,
-                           storage=storage, logger=logger).get_user_info(item)
+            if not payload.get('ignore_details'):
+                details = User(id=item['id'], fetcher=fetcher,
+                               storage=storage, logger=logger).get_user_info(item)
             sleep(0.01)
 
 
