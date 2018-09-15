@@ -214,7 +214,13 @@ function diff_to_dict(v1, v2) {
           // console.log(promises);
           if (data) {
             // console.log('is ok');
-            res = [item['type'], data];
+            fetchData('follows/' + item['data']['id'], 0, 1000, (data2) => {
+              data['ihelper_user_history']=data2;
+              res = [item['type'], data];
+              console.log(res);
+              resolve(res);
+            });
+
           } else {
             // console.log('is NOT ok');
             data = item['data'];
@@ -222,11 +228,13 @@ function diff_to_dict(v1, v2) {
             data['edge_followed_by']['count'] = -1;
             data['edge_follow'] = {};
             data['edge_follow']['count'] = -1;
+            data['ihelper_user_history'] = [];
 
+
+            // data['change'] = item['type'];
+            res = [item['type'], data];
+            resolve(res);
           }
-          // data['change'] = item['type'];
-          res = [item['type'], data];
-          resolve(res);
         })
       });
 
@@ -325,5 +333,6 @@ function promise_list_ts_for_key(key, ts) {
 export default promise_list_ts_for_key;
 export {
   promise_list_ts_for_key,
-  make_diff
+  make_diff,
+  timeConverter
 };

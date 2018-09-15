@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import {promise_list_ts_for_key, make_diff} from './App';
+import {promise_list_ts_for_key, make_diff,timeConverter} from './App';
 import Dropdown from 'react-dropdown';
 import 'react-dropdown/style.css';
 import ReactTable from "react-table";
@@ -76,6 +76,20 @@ function SubsribersList(props) {
         accessor: "edge_follow.count",
         width: 100
       },
+      {
+        Header: "history",
+        Cell: (row) => {
+          var history = row.original.ihelper_user_history;
+          var text_history = history.map(function(h){
+                        var dt = timeConverter(h.ts);
+                        return <li><span style={{color: h.val.action == 1? 'green':'red'}}>{dt} {h.val.producer}</span></li>;
+                      })
+
+          return <ul>
+          {text_history}
+          </ul>
+        }
+      }
     ];
     // var size = followers.length > 10 ? 10 : followers.length;
     console.log(size);
@@ -93,11 +107,11 @@ function SubsribersList(props) {
   return (
     <div>
     {deleted} deleted, {added} added, {added-deleted} total
-    <div style={{width: '50%'}}>
+    <div style={{width: '60%'}}>
     <h3>Lost Followers</h3>
     {listFollowers(followers.deleted, '#aa0000', 10 )}
     </div>
-    <div style={{width: '50%'}}>
+    <div style={{width: '60%'}}>
     <h3>New followers</h3>
     {listFollowers(followers.created, '#00aa00', 10)}
     </div>
