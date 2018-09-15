@@ -16,7 +16,7 @@ class User:
         r = {}
         r['removed'] = {}
         r['added'] = {}
-        old = self.get_followers(ts=start)
+        old = self.get_followers(ts=start) if start > 0 else {}
         followers = self.get_followers(ts=end)
 
         removed = set(old) - set(followers)

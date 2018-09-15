@@ -16,11 +16,19 @@ CONFIG_FILE = "settings.json"
 def update_followers(payload):
     user = User(id=payload['user_id'],
                 fetcher=fetcher, storage=storage, logger=logger)
-    prev_ts = user.last_followers_ts()
+    try:
+        prev_ts = user.last_followers_ts()
+    except:
+        "new user"
+        prev_ts = 0
+
     ignore_unfollow = payload.get('ignore_unfollow', None)
     original_followers = None
     if ignore_unfollow:
-        original_followers = user.get_followers(ts=prev_ts)
+        try:
+            original_followers = user.get_followers(ts=prev_ts)
+        except:
+            original_followers = {}
 
     followers = user.update_followers(ts=int(
         start_time), original_followers=original_followers, ignore_unfollow=ignore_unfollow)
