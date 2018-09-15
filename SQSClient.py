@@ -1,4 +1,5 @@
 import boto3
+import json
 
 
 class SQSClient:
@@ -9,3 +10,6 @@ class SQSClient:
 
     def recieve(self):
         return self.queue.receive_messages(MaxNumberOfMessages=1, WaitTimeSeconds=20)
+
+    def send(self, message):
+        return self.queue.send_message(MessageBody=json.dumps(message))
