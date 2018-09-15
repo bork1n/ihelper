@@ -12,10 +12,13 @@ class User:
         self.storage = storage
         self.logger = logger
 
-    def calc_diff(self, old, followers):
+    def calc_diff(self, start, end):
         r = {}
         r['removed'] = {}
         r['added'] = {}
+        old = self.get_followers(ts=start)
+        followers = self.get_followers(ts=end)
+
         removed = set(old) - set(followers)
         added = set(followers) - set(old)
         for item in removed:
@@ -41,12 +44,12 @@ class User:
         return self.storage.get_last_ts('followers/' + str(self.id))
 
     def get_followers(self, ts=None):
-        old = self.storage.load_data('followers/' + str(self.id), ts=None)
+        old = self.storage.load_data('followers/' + str(self.id), ts)
         if not old:
             old = {}
         return old
 
-    def update_followers(self):
+    def update_followers(self, ts=None):
         fetch = True
         num = 30
         followers = {}
@@ -68,6 +71,6 @@ class User:
                 if not edges['page_info']['has_next_page']:
                     break
         if followers:
-            self.storage.save_data('followers/' + self.id, followers)
+            self.storage.save_data('followers/' + self.id, followers, ts)
 
         return followers
