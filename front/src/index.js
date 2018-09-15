@@ -80,9 +80,9 @@ function SubsribersList(props) {
         Header: "history",
         Cell: (row) => {
           var history = row.original.ihelper_user_history;
-          var text_history = history.map(function(h){
+          var text_history = history.map(function(h, index){
                         var dt = timeConverter(h.ts);
-                        return <li><span style={{color: h.val.action == 1? 'green':'red'}}>{dt} {h.val.producer}</span></li>;
+                        return <li key={index }><span style={{color: h.val.action == 1? 'green':'red'}}>{dt} {h.val.producer}</span></li>;
                       })
 
           return <ul>
