@@ -42,10 +42,6 @@ function SubsribersList(props) {
               z.push({ id: followers[k]['id'], username: followers[k]['username']})
 
       )
-    console.log(
-      JSON.stringify(z)
-
-          );
       const columns = [
       {
         Header: "Img",
