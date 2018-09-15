@@ -49,7 +49,7 @@ class User:
             old = {}
         return old
 
-    def update_followers(self, ts=None):
+    def update_followers(self, ts=None, original_followers=None, ignore_unfollow=False):
         fetch = True
         num = 30
         followers = {}
@@ -69,6 +69,15 @@ class User:
                 self.logger.info("got %4d of %4d", got, total)
                 after = edges['page_info']['end_cursor']
                 if not edges['page_info']['has_next_page']:
+                    break
+                if original_followers and ignore_unfollow and set(followers) & set(original_followers):
+                    """
+                    we have found some client(s) which existed before and we
+                    don't care about deletions - so add previous data and return
+                    """
+                    self.logger.info(
+                        "Found previously existing client, joining lists and stopping")
+                    followers.update(original_followers)
                     break
         if followers:
             self.storage.save_data('followers/' + self.id, followers, ts)
