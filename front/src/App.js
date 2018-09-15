@@ -208,32 +208,20 @@ function diff_to_dict(v1, v2) {
       return new Promise((resolve, reject) => {
         fetchData('profiles/' + item['data']['id'], 0, 1, (data) => {
           var res;
-          // console.log(key, item.data.id);
-          // console.log("cb on [idx=","] item=",item,", data=", data);
-          // console.log(promises);
-          if (data) {
-            // console.log('is ok');
-            fetchData('follows/' + item['data']['id'], 0, 1000, (data2) => {
-              data['ihelper_user_history']=data2;
-              res = [item['type'], data];
-              console.log(res);
-              resolve(res);
-            });
-
-          } else {
-            // console.log('is NOT ok');
+          if(JSON.stringify(data) === '{}'){
             data = item['data'];
             data['edge_followed_by'] = {};
             data['edge_followed_by']['count'] = -1;
             data['edge_follow'] = {};
             data['edge_follow']['count'] = -1;
             data['ihelper_user_history'] = [];
-
-
-            // data['change'] = item['type'];
-            res = [item['type'], data];
-            resolve(res);
           }
+            fetchData('follows/' + item['data']['id'], 0, 1000, (data2) => {
+              data['ihelper_user_history']=data2;
+              res = [item['type'], data];
+              console.log(res);
+              resolve(res);
+            });
         })
       });
 
