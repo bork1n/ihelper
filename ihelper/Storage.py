@@ -44,6 +44,9 @@ class Storage:
         content = gzip.compress(json.dumps(value).encode('utf-8'))
         return self.backend.save(key=key, value=content, ts=ts, filename=self._filename(key, ts))
 
+    def get_last_ts(self, key):
+        return self.backend.get_last_ts(key)
+
 
 class BackendAbstract(object, metaclass=abc.ABCMeta):
     """
@@ -57,6 +60,10 @@ class BackendAbstract(object, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def save(self, key, content, ts):
         raise NotImplementedError('Must define save()')
+
+    @abc.abstractmethod
+    def get_last_ts(self, key):
+        raise NotImplementedError('Must define get_last_ts()')
 
 
 DB_MAX_SIZE = 6 * 1024
@@ -93,6 +100,20 @@ class DynamoDBBackend(BackendAbstract):
             data = data.value
 
         return data
+
+    def get_last_ts(self, key):
+        args = {
+            "KeyConditionExpression": Key('key').eq(key),
+            "Limit": 1,
+            "ScanIndexForward": False
+        }
+        response = self.table.query(**args)
+        items = response['Items']
+
+        if not items:
+            raise FileNotFoundError
+
+        return int(items[0]['ts'])
 
     def save(self, key, value, ts, filename):
 

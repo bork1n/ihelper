@@ -37,6 +37,9 @@ class User:
             self.storage.save_data('profiles/' + str(item['id']), details)
         return details
 
+    def last_followers_ts(self):
+        return self.storage.get_last_ts('followers/' + str(self.id))
+
     def get_followers(self, ts=None):
         old = self.storage.load_data('followers/' + str(self.id), ts=None)
         if not old:
