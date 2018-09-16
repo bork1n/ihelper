@@ -1,6 +1,6 @@
 import random
 
-QUERY_FOLLOWERS = '149bef52a3b2af88c0fec37913fe1cbc'
+QUERY_FOLLOWERS = '56066f031e6239f35a904ac20c9f37d9'
 # Doesn't make sense if >50
 PER_ROUND = 50
 
@@ -28,7 +28,8 @@ class User:
         return r
 
     def generate_query(self, first, after=None):
-        vars = '"id":"{}","first":{}'.format(self.id, first)
+        vars = '"id":"{}","include_reel":false,"fetch_mutual":false,"first":{}'.format(
+            self.id, first)
         if after is not None:
             vars += ',"after":"{}"'.format(after)
         return "{{{}}}".format(vars)
