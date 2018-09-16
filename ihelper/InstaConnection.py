@@ -92,8 +92,8 @@ class InstaConnection:
             self.logger.error('Login error! Check your login data!')
 
     def _generate_ua(self):
-        fake_ua = UserAgent()
-        self.s.headers.update({'User-Agent': fake_ua['google chrome']})
+        ua = self.account['user-agent'] or UserAgent().fake_ua['google chrome']
+        self.s.headers.update({'User-Agent': ua})
 
     def do_login(self):
         self.load_session()
@@ -107,7 +107,15 @@ class InstaConnection:
         self._generate_ua()
         self.s.headers.update(DEFAULT_HEADERS)
         self.s.cookies.update(DEFAULT_COOKIES)
-
+        if self.account['cookies']:
+            self.logger.info("Cookies provided, checking...")
+            self.s.cookies.update(self.account['cookies'])
+            self.check_login()
+            if self.login_status:
+                self.logger.info("worked!")
+                self.save_session()
+                return
+            self.logger.info("cookies were not enough, trying to login")
         r = self.s.get(self.url)
         self.s.headers.update({'X-CSRFToken': r.cookies['csrftoken']})
         time.sleep(5 * random.random())
