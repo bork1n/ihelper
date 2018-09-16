@@ -88,6 +88,11 @@ function SubsribersList(props) {
           return <ul>
           {text_history}
           </ul>
+        },
+        filterMethod: (filter, row) => {
+          console.log(filter, row)
+          var history = row._original.ihelper_user_history;
+          return history.some((h)=>h.val.producer == filter.value)
         }
       }
     ];
@@ -98,6 +103,7 @@ function SubsribersList(props) {
         data={followers}
         columns={columns}
         defaultPageSize={size}
+        filterable
         className="-striped -highlight"
         />
     )
