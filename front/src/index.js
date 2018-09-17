@@ -68,13 +68,14 @@ function SubsribersList(props) {
       {
         Header: "followed_by",
         accessor: "edge_followed_by.count",
-        width: 100
-
+        width: 100,
+        filterMethod: (filter,row) => row._original.edge_followed_by.count>=filter.value
       },
       {
         Header: "follow",
         accessor: "edge_follow.count",
-        width: 100
+        width: 100,
+        filterMethod: (filter,row) => row._original.edge_follow.count>=filter.value
       },
       {
         Header: "history",
