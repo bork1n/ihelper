@@ -35,10 +35,12 @@ class User:
         return "{{{}}}".format(vars)
 
     def get_user_info(self, item):
-        details = self.storage.load_data('profiles/' + str(self.id))
+        details = 0
+        if self.id:
+            details = self.storage.load_data('profiles/' + str(self.id))
         if not details:
             details = self.fetcher.user_info(item['username'])
-            self.storage.save_data('profiles/' + str(item['id']), details)
+            self.storage.save_data('profiles/' + str(details['id']), details)
         return details
 
     def last_followers_ts(self):
