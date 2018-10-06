@@ -26,11 +26,11 @@ class Fetcher:
             f = json.loads(data.text)
             return f
         elif data.status_code in [500, 502, 503]:
-            raise Exception('Insta is dead')
+            self.logger.error('Insta is dead: %s, sleeping 10', data.status_code)
+            time.sleep(10)
         elif data.status_code in [400, 429]:
             self.logger.info('Rate limited, sleeing 600')
             time.sleep(600)
-            return None
         else:
             self.logger.info(data.__dict__)
         return None
