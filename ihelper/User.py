@@ -83,6 +83,6 @@ class User:
                     followers.update(original_followers)
                     break
         if followers:
-            self.storage.save_data('followers/' + self.id, followers, ts)
+            self.storage.save_data('followers/' + str(self.id), followers, ts)
 
         return followers
