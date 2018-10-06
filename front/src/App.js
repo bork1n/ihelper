@@ -16,6 +16,33 @@ const s3bucket ='ihelper';
 const ddbtable = 'ihelper';
 
 
+var nameCache = {};
+var nameCachePromises = [];
+function getInfoById(id) {
+  //XXX: maybe combine with make_prom/diff_to_dict
+  return nameCache[id];
+}
+// XXX: move to promises, with guaranteed revolvation by the time of drawing
+function updateNameCache(id) {
+  if(nameCache.hasOwnProperty(id)){
+    return;
+  }
+  nameCache[id] = 'loading...';
+  nameCachePromises.push(
+    new Promise(
+      (resolve,reject) => {
+        fetchData('profiles/'+id, 0, 1,
+          (val)=>{
+            nameCache[id] = val;
+            console.log(nameCache);
+            resolve();
+          }
+        )
+      }
+    )
+  );
+}
+
 function fetchData(key, ts, limit, cb) {
   // console.log("running with ", key);
   var params = {
@@ -46,7 +73,6 @@ function fetchData(key, ts, limit, cb) {
         var promise = new Promise(function(resolve, reject) {
 
         if (typeof(item.val.startsWith) == 'function' && item.val.startsWith(key)) {
-          console.log('s3!');
           var res_value = 0;
           s3.getObject({
             Bucket: s3bucket,
@@ -217,6 +243,7 @@ function diff_to_dict(v1, v2) {
             data['ihelper_user_history'] = [];
           }
             fetchData('follows/' + item['data']['id'], 0, 1000, (data2) => {
+              data2.map((element)=>{updateNameCache(element.val.producer)})
               data['ihelper_user_history']=data2;
               res = [item['type'], data];
               console.log(res);
@@ -233,6 +260,10 @@ function diff_to_dict(v1, v2) {
   }
   // console.log(promises);
   return Promise.all(promises).then(values => {
+    console.log('diff done, waiting for nameCachePromises',nameCachePromises);
+    return Promise.all(nameCachePromises).then(
+      ()=>{
+        console.log('nameCachePromises done');
     var res = {};
     for (var idx in values) {
       var item = values[idx];
@@ -243,6 +274,7 @@ function diff_to_dict(v1, v2) {
       res[item[0]].push(item[1])
     }
     return res;
+  });
   });
 }
 
@@ -321,5 +353,6 @@ export default promise_list_ts_for_key;
 export {
   promise_list_ts_for_key,
   make_diff,
+  getInfoById,
   timeConverter
 };
