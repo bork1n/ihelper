@@ -21,7 +21,10 @@ class Fetcher:
             time.sleep(1 + random.randint(0, 2))
 
     def _json_get_request(self, url):
-        data = self.conn.get(url)
+        try:
+            data = self.conn.get(url)
+        except:
+            pass
         if data.status_code == 200:
             f = json.loads(data.text)
             return f
