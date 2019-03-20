@@ -23,7 +23,8 @@ DEFAULT_HEADERS = {
     'Referer': 'https://www.instagram.com/',
     'X-Instagram-AJAX': '1',
     'Content-Type': 'application/x-www-form-urlencoded',
-    'X-Requested-With': 'XMLHttpRequest'
+    'X-Requested-With': 'XMLHttpRequest',
+    'Accept': 'application/json'
 }
 
 
