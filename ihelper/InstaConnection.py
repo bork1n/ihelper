@@ -135,7 +135,9 @@ class InstaConnection:
             self.logger.error('Login error! Connection error!')
 
     def get(self, url):
+        self.logger.debug("url %s...", url)
         data = self.s.get(url)
+        self.logger.debug("url %s debug %s", url, data)
         if data.status_code == 403:
             self.login_status = False
             os.remove(self._session_file())
